@@ -203,4 +203,18 @@ function showM(key){
     b+=`<div class="st">☀️ Morning</div>`;
     if(tu.includes('OPD') && oe) b+=`<div class="apanel"><div class="ap-hdr ap-opd">OPD</div><div class="ap-row"><div class="ap-loc">Rm 34</div><div class="ap-val">G${oe.r34}: ${gr(oe.r34)}</div></div><div class="ap-row"><div class="ap-loc">Rm 42</div><div class="ap-val">G${oe.r42}: ${gr(oe.r42)}</div></div><div class="ap-row"><div class="ap-loc">Rm 17</div><div class="ap-val">G${oe.r17}: ${gr(oe.r17)}</div></div><div class="ap-row"><div class="ap-loc">Liver</div><div class="ap-val">G${oe.lv}: ${gr(oe.lv)}</div></div></div>`;
     else { b+=`<div class="ir"><div class="il">Topic</div><div class="iv"><strong>${r.topic}</strong></div></div>`; if(r.mc) b+=`<div class="ir"><div class="il">Speaker</div><div class="iv">${r.mc}</div></div>`; }
-    if(cp) b+=`<div
+    if(cp) b+=`<div class="st">📋 Case Presentation</div><div class="roll-chips">${cp.map(n=>`<span class="rc">${n}</span>`).join('')}</div>`;
+    b+=`<div class="st">🌙 Evening</div>`;
+    if(tu.includes('ER') && oe) b+=`<div class="apanel"><div class="ap-hdr ap-er">ER</div><div class="ap-row"><div class="ap-loc">Bay 3</div><div class="ap-val">G${oe.b3}: ${gr(oe.b3)}</div></div><div class="ap-row"><div class="ap-loc">Bay 4</div><div class="ap-val">G${oe.b4}: ${gr(oe.b4)}</div></div><div class="ap-row"><div class="ap-loc">ICU</div><div class="ap-val">G${oe.icu}</div></div></div>`;
+    else if(r.ec && r.ec!=='ER') b+=`<div class="ir"><div class="il">Evening</div><div class="iv">${r.ec}</div></div>`;
+    if(r.sr) b+=`<div class="ir"><div class="il">Teacher</div><div class="iv">${r.sr}</div></div>`;
+    if(ic.length) b+=`<div class="st">🎓 Incharge</div><div class="roll-chips">${ic.map(n=>`<span class="rc" style="border-color:var(--accent2); color:var(--accent2)">${n}</span>`).join('')}</div>`;
+  }
+  document.getElementById('mB').innerHTML=b;
+  document.getElementById('ov').classList.add('on');
+}
+function closeM(){document.getElementById('ov').classList.remove('on');}
+function ovClick(e){if(e.target===document.getElementById('ov'))closeM();}
+</script>
+</body>
+</html>
