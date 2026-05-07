@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>EMW Roster – Batch B1 | 2026</title>
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="data:application/manifest+json,{%22name%22:%22EMW%20Roster%22,%22short_name%22:%22EMW%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%230d1117%22,%22theme_color%22:%22%233b82f6%22}">
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0d1117; --surface:#161b22; --surface2:#1c2430; --border:#2d3748;
+    --accent:#3b82f6; --accent2:#06b6d4; --gold:#f59e0b; --red:#ef4444;
+    --green:#10b981; --purple:#8b5cf6; --text:#e2e8f0; --muted:#64748b;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+  header{background:linear-gradient(135deg,#0d1117 0%,#1a1f35 50%,#0d1117 100%);border-bottom:1px solid var(--border);padding:28px 32px 20px;position:relative;overflow:hidden;}
+  header h1{font-family:'Playfair Display',serif;font-size:1.9rem;color:#fff;letter-spacing:-.02em;line-height:1.2;}
+  header p{font-size:.82rem;color:var(--muted);margin-top:4px;letter-spacing:.05em;text-transform:uppercase;}
+
+  .controls-bar { padding: 14px 32px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; gap: 12px; position: sticky; top: 0; z-index: 50; flex-wrap: wrap; }
+  .search-input { flex: 1; min-width: 200px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 15px; color: #fff; font-size: 0.9rem; }
+  .btn-print { background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
+
+  .legend{display:flex;flex-wrap:wrap;gap:10px;padding:14px 32px;background:var(--surface);border-bottom:1px solid var(--border);font-size:.73rem;}
+  .legend-item{display:flex;align-items:center;gap:5px;color:var(--muted);}
+  .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+  .d-opd{background:var(--accent);} .d-er{background:var(--red);} .d-lec{background:var(--green);}
+  .d-cpc{background:var(--purple);} .d-hol{background:var(--muted);} .d-wrd{background:var(--gold);}
+
+  .cal-wrap{padding:24px 32px 40px;}
+  .month-lbl{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--accent2);margin:28px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--border);letter-spacing:.04em;}
+  .wk-hdr{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px;}
+  .wk-hdr-cell{text-align:center;font-size:.68rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px 0;}
+  .wk-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px;}
+
+  .dc{background:var(--surface);border:1px solid var(--border);border-radius:8px;min-height:90px;padding:8px;cursor:pointer;transition: all 0.2s;position:relative;overflow:hidden;}
+  .dc.search-match { border-color: var(--gold); box-shadow: 0 0 12px rgba(245, 158, 11, 0.4); }
+  .dc.empty{background:transparent;border-color:transparent;cursor:default;pointer-events:none;}
+  .dc.hol{background:#1a1a2e;border-color:#2a2a3a;}
+  .dc.cpc{border-color:var(--purple);}
+  .dc.wrd{border-color:var(--gold);}
+
+  .dn{font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:4px;display:flex;align-items:center;justify-content:space-between;}
+  .wt{font-size:.6rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:1px 5px;border-radius:3px;background:rgba(255,255,255,.05);color:var(--muted);}
+  .pr{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px;}
+  .pl{font-size:.56rem;font-weight:700;padding:2px 5px;border-radius:4px;letter-spacing:.04em;text-transform:uppercase;}
+  .p-opd{background:rgba(59,130,246,.2);color:#93c5fd;} .p-er{background:rgba(239,68,68,.2);color:#fca5a5;}
+  .p-cpc{background:rgba(139,92,246,.2);color:#c4b5fd;} .p-hol{background:rgba(100,116,139,.2);color:#94a3b8;}
+  .p-wrd{background:rgba(245,158,11,.2);color:#fcd34d;} .p-lec{background:rgba(16,185,129,.2);color:#6ee7b7;}
+  .p-case{background:rgba(245,158,11,.15);color:#fcd34d;border:1px solid rgba(245,158,11,.3);}
+  .ct{font-size:.63rem;color:var(--text);font-weight:500;margin-top:5px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+
+  .ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:100;align-items:center;justify-content:center;backdrop-filter:blur(4px);padding:20px;}
+  .ov.on{display:flex;}
+  .mo{background:var(--surface2);border:1px solid var(--border);border-radius:16px;width:100%;max-width:720px;max-height:90vh;overflow-y:auto;animation:up .2s ease;}
+  @keyframes up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+  .mh{padding:22px 28px 16px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface2);z-index:1;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+  .mwd{font-size:.72rem;color:var(--accent2);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px;}
+  .mdt{font-family:'Playfair Display',serif;font-size:1.4rem;color:#fff;line-height:1.2;}
+  .cbtn{background:none;border:none;cursor:pointer;color:var(--muted);font-size:1.4rem;line-height:1;padding:4px;transition:color .15s;flex-shrink:0;}
+  .mb{padding:20px 28px 28px;}
+
+  .st{font-size:.63rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:20px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border);}
+  .ir{display:grid;grid-template-columns:155px 1fr;gap:8px 12px;font-size:.82rem;padding:7px 0;border-bottom:1px solid rgba(45,55,72,.5);align-items:start;}
+  .il{color:var(--muted);font-weight:500;} .iv{color:var(--text);} .iv strong{color:#fff;}
+
+  .apanel{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-top:8px;}
+  .ap-hdr{font-size:.63rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:8px 12px;display:flex;align-items:center;gap:6px;}
+  .ap-opd{background:rgba(59,130,246,.12);color:#93c5fd;}
+  .ap-er{background:rgba(239,68,68,.12);color:#fca5a5;}
+  .ap-row{display:grid;grid-template-columns:110px 1fr;font-size:.78rem;padding:7px 12px;border-top:1px solid var(--border);}
+  .ap-loc{color:var(--muted);font-weight:500;} .ap-val{color:var(--text);}
+
+  .roll-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
+  .rc{font-size:.76rem;font-weight:700;padding:3px 11px;border-radius:20px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.35);color:#fcd34d;}
+
+  @media print {
+    .controls-bar, .legend, header::before, .cbtn { display: none !important; }
+    body { background: white !important; color: black !important; padding: 0 !important; }
+    header { background: white !important; border-bottom: 2px solid black !important; padding: 10px 0 !important; }
+    header h1, header p { color: black !important; }
+    .dc { border: 1px solid #000 !important; min-height: 100px !important; background: transparent !important; opacity: 1 !important; }
+    .dn, .wt, .ct, .month-lbl { color: black !important; }
+    .pl { border: 1px solid #000 !important; background: #eee !important; color: black !important; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p>East Medical Ward · Final Year MBBS</p>
+  <h1>Batch B1 Roster</h1>
+  <p style="margin-top:6px">19 April – 13 June 2026</p>
+</header>
+
+<div class="controls-bar">
+  <input type="text" id="searchInput" class="search-input" placeholder="Search Roll # (e.g. 162), Topic, or Doctor...">
+  <button class="btn-print" onclick="window.print()">Print Roster</button>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="dot d-opd"></div>OPD</div>
+  <div class="legend-item"><div class="dot d-er"></div>ER</div>
+  <div class="legend-item"><div class="dot d-lec"></div>Lecture</div>
+  <div class="legend-item"><div class="dot d-cpc"></div>CPC</div>
+  <div class="legend-item"><div class="dot d-hol"></div>Holiday</div>
+  <div class="legend-item"><div class="dot d-wrd"></div>Ward Test</div>
+</div>
+
+<div class="cal-wrap" id="calWrap"></div>
+
+<div class="ov" id="ov" onclick="ovClick(event)">
+  <div class="mo" id="mo">
+    <div class="mh">
+      <div><div class="mwd" id="mWd"></div><div class="mdt" id="mDt"></div></div>
+      <button class="cbtn" onclick="closeM()">✕</button>
+    </div>
+    <div class="mb" id="mB"></div>
+  </div>
+</div>
+
+<script>
+const GROUPS = { 1:[11,54,75,76,77], 2:[78,95,111,120], 3:[158,161,162,196,180,241], 4:[245,247,267,286,293,348] };
+const OPD_ER = { '2026-04-23':{r34:2,r42:3,r17:4,lv:1, b3:1,b4:2,icu:'3,4'}, '2026-04-27':{r34:3,r42:4,r17:1,lv:2, b3:2,b4:4,icu:'1,3'}, '2026-04-30':{r34:4,r42:1,r17:2,lv:3, b3:1,b4:3,icu:'2,4'}, '2026-05-04':{r34:1,r42:2,r17:3,lv:4, b3:4,b4:2,icu:'1,3'}, '2026-05-07':{r34:2,r42:3,r17:4,lv:1, b3:3,b4:1,icu:'2,4'}, '2026-05-11':{r34:3,r42:4,r17:1,lv:2, b3:2,b4:4,icu:'1,3'}, '2026-05-14':{r34:4,r42:1,r17:2,lv:3, b3:1,b4:3,icu:'2,4'}, '2026-05-18':{r34:1,r42:2,r17:3,lv:4, b3:2,b4:1,icu:'3,4'}, '2026-05-21':{r34:2,r42:3,r17:4,lv:1, b3:3,b4:4,icu:'1,2'}, '2026-05-25':{r34:3,r42:4,r17:1,lv:2, b3:4,b4:2,icu:'1,3'}, '2026-05-28':{r34:4,r42:1,r17:2,lv:3, b3:1,b4:3,icu:'2,4'}, '2026-06-01':{r34:1,r42:2,r17:3,lv:4, b3:4,b4:1,icu:'2,3'}, '2026-06-04':{r34:2,r42:3,r17:4,lv:1, b3:3,b4:2,icu:'1,4'}, '2026-06-08':{r34:3,r42:4,r17:1,lv:2, b3:2,b4:1,icu:'3,4'}, '2026-06-11':{r34:1,r42:2,r17:3,lv:4, b3:1,b4:4,icu:'2,3'} };
+const INCHARGE = {0:[],1:[162,247],2:[245],3:[245],4:[161,247],5:[196],6:[196]};
+const CP = { '2026-04-21':[11,54], '2026-04-22':[75,76], '2026-04-24':[77,78], '2026-04-25':[95,111,120], '2026-04-28':[158,161], '2026-04-29':[162,196], '2026-05-02':[280,241], '2026-05-05':[245,247], '2026-05-06':[267,286], '2026-05-08':[293,348], '2026-05-09':[11,54], '2026-05-12':[75,76], '2026-05-13':[77,78], '2026-05-16':[95,111,120], '2026-05-19':[158,161], '2026-05-20':[162,196], '2026-05-22':[180,241], '2026-05-23':[245,247], '2026-05-26':[267,286], '2026-05-27':[293,348], '2026-05-30':[11,54], '2026-06-02':[75,76], '2026-06-03':[77,78], '2026-06-06':[95,111,120], '2026-06-09':[158,161], '2026-06-10':[162,196], '2026-06-12':[180,241] };
+const RAW=[ {s:46132,day:'Monday',topic:'OPD',mc:'',ec:'ER',sr:'SR ON DUTY'}, {s:46133,day:'Tuesday',topic:'Approach to History Taking',mc:'Dr Yaser Imran',ec:'GPE 1',sr:'Dr Waqar Ali'}, {s:46134,day:'Wednesday',topic:'UGIB',mc:'Dr Shazia Siddique',ec:'GPE 2',sr:'Dr Saqib Hafeez'}, {s:46135,day:'Thursday',topic:'OPD',mc:'',ec:'ER',sr:'SR ON DUTY'}, {s:46136,day:'Friday',topic:'Approach to Ascites',mc:'Dr Bilal Aziz',ec:'Abdominal Examination 1',sr:'Dr Nauman Hameed'}, {s:46137,day:'Saturday',topic:'Approach to Jaundice',mc:'Dr Naeem Aslam',ec:'Abdominal Examination 2',sr:'Dr Safiullah'}, {s:46138,day:'Sunday',topic:'HOLIDAY',mc:'',ec:'',sr:''}, {s:46139,day:'Monday',topic:'OPD+ER',mc:'',ec:'ER',sr:'SR ON DUTY'}, {s:46140,day:'Tuesday',topic:'Hepatic Encephalopathy',mc:'Dr Tazeen Nazar',ec:'Dyspepsia / Gastritis',sr:'Dr Ateeq'}, {s:46141,day:'Wednesday',topic:'Chronic Diarrhoea',mc:'Dr Sidrah Lodhi',ec:'Endoscopy',sr:'Dr Rizwan Munir'}, {s:46142,day:'Thursday',topic:'OPD',mc:'',ec:'ER',sr:'SR ON DUTY'}, {s:46143,day:'Friday',topic:'HOLIDAY',mc:'',ec:'',sr:''}, {s:46144,day:'Saturday',topic:'Approach to Chest Pain',mc:'Dr Mamoona Ghias',ec:'Basics of ECG',sr:'Dr Awais Khan'}, {s:46145,day:'Sunday',topic:'HOLIDAY',mc:'',ec:'',sr:''}, {s:46146,day:'Monday',topic:'OPD',mc:'',ec:'ER',sr:'SR ON DUTY'}, {s:46147,day:'Tuesday',topic:'Congestive Heart Failure',mc:'Dr Uzma Malik',ec:'Management of Shock',sr:'Dr Zubair'}, {s:46148,day:'Wednesday',topic:'Valvular Heart Disease',mc:'Dr Tazeen Nazar',ec:'CVS Examination',sr:'Dr Saqib Hafeez'}, {s:46149,day:'Thursday',topic:'OPD+ER',mc:'',ec:'ER',sr:'Dr Kashif Nawaz'}, {s:46150,day:'Friday',topic:'Infective Endocarditis',mc:'Dr Shazia Siddique',ec:'CVS Examination 2',sr:'Dr Anam Fatima Bangash'}, {s:46151,day:'Saturday',topic:'Arrhythmias',mc:'Dr Sidrah Lodhi',ec:'CXR Interpretation',sr:'Dr Ghulam Rehmani'}, {s:46152,day:'Sunday',topic:'HOLIDAY',mc:'',ec:'',sr:''}, {s:46153,day:'Monday',topic:'OPD',mc:'',ec:'ER',sr:'SR ON DUTY'}, {s:46154,day:'Tuesday',topic:'Approach to Anemias',mc:'Dr Tazeen Nazar / Prof Dr Imran Hasan',ec:'ABGS Interpretation',sr:'Dr Furqan'}, {s:46155,day:'Wednesday',topic:'Lymphoproliferative Disorders',mc:'Dr Bilal Aziz',ec:'HIV and AIDS',sr:'Dr Naveed'}, {s:46156,day:'Thursday',topic:'OPD+ER',mc:'',ec:'Needle Stick Injury',sr:'SR ON DUTY'}, {s:46157,day:'Friday',topic:'CPC',mc:'',ec:'',sr:''}, {s:46158,day:'Saturday',topic:'Diabetes Mellitus',mc:'Dr Sidrah Lodhi',ec:'Diabetic Foot Care',sr:'Dr Sajjad Sohail'}, {s:46159,day:'Sunday',topic:'HOLIDAY',mc:'',ec:'',sr:''}, {s:46160,day:'Monday',topic:'OPD',mc:'',ec:'ER',sr:'SR ON DUTY'}, {s:46161,day:'Tuesday',topic:'DKA / HSS',mc:'Dr Uzma Malik / Prof Dr Imran Hasan',ec:'Cushing / Addison Disease',sr:'Dr Umer Sheikh'}, {s:46162,day:'Wednesday',topic:'Thyroid Disorders',mc:'Dr Sidrah Lodhi',ec:'TFTS Interpretation',sr:'Dr Nazish'}, {s:46163,day:'Thursday',topic:'OPD+ER',mc:'',ec:'ER',sr:'SR ON DUTY'}, {s:46164,day:'Friday',topic:'Approach to SOB',mc:'Dr Naeem Aslam',ec:'Respiratory Examination 1',sr:'Dr Sarah Samreen'}, {s:46165,day:'Saturday',topic:'Obstructive Airway Disease (Asthma / COPD)',mc:'Dr Mamoona Ghias',ec:'CXR Interpretation',sr:'Dr Hafsa Ahmed'}, {s:46166,day:'Sunday',topic:'HOLIDAY',mc:'',ec:'',sr:''}, {s:46167,day:'Monday',topic:'OPD+ER',mc:'',ec:'Status Asthmaticus',sr:'SR ON DUTY'}, {s:46168,day:'Tuesday',topic:'Pneumonia',mc:'Dr Shazia Siddique / Prof Dr Imran Hasan',ec:'Chest Auscultation',sr:'Dr Safiullah'}, {s:46169,day:'Wednesday',topic:'Pulmonary & Extrapulmonary Tuberculosis',mc:'Dr Bilal Aziz',ec:'Drugs and Instruments',sr:'Dr Zubair'}, {s:46170,day:'Thursday',topic:'ER+OPD',mc:'',ec:'ER',sr:'SR ON DUTY'}, {s:46171,day:'Friday',topic:'Restrictive Airway Diseases',mc:'Dr Shazia Siddique',ec:'CT Brain Plain',sr:'Dr Kashif Bashir'}, {s:46172,day:'Saturday',topic:'Pleural Effusion / Pneumothorax',mc:'Dr Naeem Aslam',ec:'Interstitial Lung Disease',sr:'Dr Naveed'}, {s:46174,day:'Monday',topic:'OPD+ER',mc:'',ec:'ER',sr:'Dr Awais Khan'}, {s:46175,day:'Tuesday',topic:'Meningoencephalitis',mc:'Dr Tazeen Nazar / Prof Dr Imran Hasan',ec:'Motor Examination',sr:'Dr Nauman Hameed'}, {s:46176,day:'Wednesday',topic:'CVA',mc:'Dr Shazia Siddique',ec:'Sensory + Cerebellum',sr:'Dr Ateeq'}, {s:46177,day:'Thursday',topic:'Localisation of Lesion',mc:'Dr Mamoona Ghias',ec:'Cranial Nerves 1-6',sr:'Dr Kashif Nawaz'}, {s:46178,day:'Friday',topic:'CPC',mc:'',ec:'',sr:''}, {s:46179,day:'Saturday',topic:'Approach to Arthralgias',mc:'Dr Yaser Imran',ec:'Cranial Nerves 7-12',sr:'Dr Kashif Bashir'}, {s:46180,day:'Sunday',topic:'HOLIDAY',mc:'',ec:'',sr:''}, {s:46181,day:'Monday',topic:'OPD+ER',mc:'',ec:'ER',sr:'Dr Ghulam Rehmani'}, {s:46182,day:'Tuesday',topic:'Connective Tissue Disorders',mc:'Dr Yaser Imran',ec:'How to Attempt SEQs',sr:'Dr Waqar Ali'}, {s:46183,day:'Wednesday',topic:'Epilepsy & Status Epilepticus',mc:'Dr Bilal Aziz',ec:'Nephrotic / Nephritic Syndrome',sr:'Dr Rizwan Munir'}, {s:46184,day:'Thursday',topic:'OPD+ER',mc:'',ec:'ER',sr:'SR ON DUTY'}, {s:46185,day:'Friday',topic:'Chronic Kidney Injury',mc:'Dr Naeem Aslam',ec:'ER Indications of HD',sr:'Dr Nazish'}, {s:46186,day:'Saturday',topic:'WARD TEST',mc:'',ec:'',sr:''}, ];
+
+const ROSTER={};
+function s2d(s){return new Date(new Date(1899,11,30).getTime()+s*86400000);}
+function dk(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+RAW.forEach(r=>{const d=s2d(r.s);ROSTER[dk(d)]={...r,date:d};});
+
+const WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MN=['January','February','March','April','May','June'];
+const S=new Date(2026,3,19), E=new Date(2026,5,13);
+
+let html='';
+[[2026,3],[2026,4],[2026,5]].forEach(([yr,mo])=>{
+  html+=`<div class="month-lbl">${MN[mo]} ${yr}</div><div class="wk-hdr">`;
+  WD.forEach(w=>{html+=`<div class="wk-hdr-cell">${w}</div>`;});
+  html+=`</div><div class="wk-grid">`;
+  const f=new Date(yr,mo,1);
+  const dInM=new Date(yr,mo+1,0).getDate();
+  for(let i=0;i<f.getDay();i++) html+=`<div class="dc empty"></div>`;
+  for(let d=1;d<=dInM;d++){
+    const cur=new Date(yr,mo,d);
+    const key=dk(cur);
+    if(cur<S||cur>E){html+=`<div class="dc empty"></div>`;continue;}
+    const row=ROSTER[key];
+    const top=row?row.topic:'';
+    const tu=top.toUpperCase();
+    let cls='dc';
+    if(tu==='HOLIDAY') cls+=' hol'; else if(tu==='CPC') cls+=' cpc'; else if(tu==='WARD TEST') cls+=' wrd';
+    let pills='';
+    if(tu==='HOLIDAY') pills+=`<span class="pl p-hol">Holiday</span>`;
+    else if(tu==='CPC') pills+=`<span class="pl p-cpc">CPC</span>`;
+    else if(tu==='WARD TEST') pills+=`<span class="pl p-wrd">Ward Test</span>`;
+    else{
+      if(tu.includes('OPD')) pills+=`<span class="pl p-opd">OPD</span>`;
+      if(tu.includes('ER')) pills+=`<span class="pl p-er">ER</span>`;
+      if(!tu.includes('OPD')&&!tu.includes('ER')) pills+=`<span class="pl p-lec">Lecture</span>`;
+    }
+    if(CP[key]) pills+=`<span class="pl p-case">📋 Case</span>`;
+    html+=`<div class="${cls}" id="day-${key}" onclick="showM('${key}')">
+      <div class="dn"><span>${d}</span><span class="wt">${WD[cur.getDay()]}</span></div>
+      <div class="pr">${pills}</div>
+      ${top && tu!=='OPD' && tu!=='HOLIDAY' ? `<div class="ct">${top}</div>` : ''}
+    </div>`;
+  }
+  html+=`</div>`;
+});
+document.getElementById('calWrap').innerHTML=html;
+
+document.getElementById('searchInput').addEventListener('input', e=>{
+  const t=e.target.value.toLowerCase().trim();
+  document.querySelectorAll('.dc:not(.empty)').forEach(c=>{
+    const k=c.id.replace('day-','');
+    const r=ROSTER[k];
+    const match = !t || r?.topic?.toLowerCase().includes(t) || r?.mc?.toLowerCase().includes(t) || r?.sr?.toLowerCase().includes(t) || CP[k]?.some(n=>n.toString().includes(t)) || INCHARGE[new Date(k).getDay()]?.some(n=>n.toString().includes(t));
+    c.style.opacity = match ? "1" : "0.15";
+    c.classList.toggle('search-match', !!t && match);
+  });
+});
+
+function gr(n){return (GROUPS[n]||[]).join(', ');}
+function showM(key){
+  const r=ROSTER[key]; if(!r) return;
+  const d=r.date, tu=r.topic.toUpperCase(), cp=CP[key], oe=OPD_ER[key], ic=INCHARGE[d.getDay()]||[];
+  document.getElementById('mWd').textContent=r.day;
+  document.getElementById('mDt').textContent=d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  let b='';
+  if(tu==='HOLIDAY') b=`<p style="color:var(--muted)">No scheduled activities.</p>`;
+  else if(tu==='CPC') b=`<p>CPC - All students attend.</p>`;
+  else if(tu==='WARD TEST') b=`<p>Ward Test - All students attend.</p>`;
+  else {
+    b+=`<div class="st">☀️ Morning</div>`;
+    if(tu.includes('OPD') && oe) b+=`<div class="apanel"><div class="ap-hdr ap-opd">OPD</div><div class="ap-row"><div class="ap-loc">Rm 34</div><div class="ap-val">G${oe.r34}: ${gr(oe.r34)}</div></div><div class="ap-row"><div class="ap-loc">Rm 42</div><div class="ap-val">G${oe.r42}: ${gr(oe.r42)}</div></div><div class="ap-row"><div class="ap-loc">Rm 17</div><div class="ap-val">G${oe.r17}: ${gr(oe.r17)}</div></div><div class="ap-row"><div class="ap-loc">Liver</div><div class="ap-val">G${oe.lv}: ${gr(oe.lv)}</div></div></div>`;
+    else { b+=`<div class="ir"><div class="il">Topic</div><div class="iv"><strong>${r.topic}</strong></div></div>`; if(r.mc) b+=`<div class="ir"><div class="il">Speaker</div><div class="iv">${r.mc}</div></div>`; }
+    if(cp) b+=`<div class="st">📋 Case Presentation</div><div class="roll-chips">${cp.map(n=>`<span class="rc">${n}</span>`).join('')}</div>`;
+    b+=`<div class="st">🌙 Evening</div>`;
+    if(tu.includes('ER') && oe) b+=`<div class="apanel"><div class="ap-hdr ap-er">ER</div><div class="ap-row"><div class="ap-loc">Bay 3</div><div class="ap-val">G${oe.b3}: ${gr(oe.b3)}</div></div><div class="ap-row"><div class="ap-loc">Bay 4</div><div class="ap-val">G${oe.b4}: ${gr(oe.b4)}</div></div><div class="ap-row"><div class="ap-loc">ICU</div><div class="ap-val">G${oe.icu}</div></div></div>`;
+    else if(r.ec && r.ec!=='ER') b+=`<div class="ir"><div class="il">Evening</div><div class="iv">${r.ec}</div></div>`;
+    if(r.sr) b+=`<div class="ir"><div class="il">Teacher</div><div class="iv">${r.sr}</div></div>`;
+    if(ic.length) b+=`<div class="st">🎓 Incharge</div><div class="roll-chips">${ic.map(n=>`<span class="rc" style="border-color:var(--accent2); color:var(--accent2)">${n}</span>`).join('')}</div>`;
+  }
+  document.getElementById('mB').innerHTML=b;
+  document.getElementById('ov').classList.add('on');
+}
+function closeM(){document.getElementById('ov').classList.remove('on');}
+function ovClick(e){if(e.target===document.getElementById('ov'))closeM();}
+</script>
+</body>
+</html>
