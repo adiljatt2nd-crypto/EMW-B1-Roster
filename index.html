@@ -23,6 +23,13 @@
   header h1{font-family:'Playfair Display',serif;font-size:1.9rem;color:#fff;letter-spacing:-.02em;line-height:1.2;}
   header p{font-size:.82rem;color:var(--muted);margin-top:4px;letter-spacing:.05em;text-transform:uppercase;}
 
+  /* Today Section */
+  .today-card { margin: 20px 32px; background: var(--surface2); border: 1px solid var(--accent); border-radius: 12px; padding: 20px; display: none; }
+  .today-tag { background: var(--accent); color: #fff; font-size: 0.65rem; font-weight: 800; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; margin-bottom: 10px; display: inline-block; }
+  .today-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 12px; }
+  .today-item { font-size: 0.85rem; line-height: 1.5; }
+  .today-label { color: var(--muted); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; display: block; margin-bottom: 2px; }
+
   .controls-bar { padding: 14px 32px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; gap: 12px; position: sticky; top: 0; z-index: 50; flex-wrap: wrap; }
   .search-input { flex: 1; min-width: 200px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 15px; color: #fff; font-size: 0.9rem; }
   .btn-print { background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
@@ -41,6 +48,7 @@
 
   .dc{background:var(--surface);border:1px solid var(--border);border-radius:8px;min-height:90px;padding:8px;cursor:pointer;transition: all 0.2s;position:relative;overflow:hidden;}
   .dc.search-match { border-color: var(--gold); box-shadow: 0 0 12px rgba(245, 158, 11, 0.4); }
+  .dc.today-highlight { border-color: var(--accent); background: rgba(59, 130, 246, 0.05); }
   .dc.empty{background:transparent;border-color:transparent;cursor:default;pointer-events:none;}
   .dc.hol{background:#1a1a2e;border-color:#2a2a3a;}
   .dc.cpc{border-color:var(--purple);}
@@ -73,20 +81,14 @@
   .apanel{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-top:8px;}
   .ap-hdr{font-size:.63rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:8px 12px;display:flex;align-items:center;gap:6px;}
   .ap-opd{background:rgba(59,130,246,.12);color:#93c5fd;}
-  .ap-er{background:rgba(239,68,68,.12);color:#fca5a5;}
   .ap-row{display:grid;grid-template-columns:110px 1fr;font-size:.78rem;padding:7px 12px;border-top:1px solid var(--border);}
   .ap-loc{color:var(--muted);font-weight:500;} .ap-val{color:var(--text);}
 
-  .roll-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
-  .rc{font-size:.76rem;font-weight:700;padding:3px 11px;border-radius:20px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.35);color:#fcd34d;}
-
   @media print {
-    .controls-bar, .legend, header::before, .cbtn { display: none !important; }
+    .controls-bar, .legend, .today-card, .cbtn { display: none !important; }
     body { background: white !important; color: black !important; padding: 0 !important; }
     header { background: white !important; border-bottom: 2px solid black !important; padding: 10px 0 !important; }
-    header h1, header p { color: black !important; }
-    .dc { border: 1px solid #000 !important; min-height: 100px !important; background: transparent !important; opacity: 1 !important; }
-    .dn, .wt, .ct, .month-lbl { color: black !important; }
+    .dc { border: 1px solid #000 !important; background: transparent !important; opacity: 1 !important; }
     .pl { border: 1px solid #000 !important; background: #eee !important; color: black !important; }
   }
 </style>
@@ -98,6 +100,30 @@
   <h1>Batch B1 Roster</h1>
   <p style="margin-top:6px">19 April – 13 June 2026</p>
 </header>
+
+<!-- TODAY'S DETAILS SECTION -->
+<div id="todayCard" class="today-card">
+  <div class="today-tag">Happening Today</div>
+  <h2 id="todayTopic" style="font-family:'Playfair Display',serif; font-size:1.3rem; color:#fff;"></h2>
+  <div class="today-grid">
+    <div class="today-item">
+      <span class="today-label">Moderator / Teacher</span>
+      <span id="todayTeacher" style="color:var(--text)"></span>
+    </div>
+    <div class="today-item">
+      <span class="today-label">Student(s) In-Charge</span>
+      <span id="todayIncharge" style="color:var(--gold); font-weight:600;"></span>
+    </div>
+    <div class="today-item" id="todayCaseBox">
+      <span class="today-label">Case Presentation</span>
+      <span id="todayCase" style="color:var(--green); font-weight:600;"></span>
+    </div>
+    <div class="today-item">
+      <span class="today-label">SR on Duty</span>
+      <span id="todaySR" style="color:var(--accent2)"></span>
+    </div>
+  </div>
+</div>
 
 <div class="controls-bar">
   <input type="text" id="searchInput" class="search-input" placeholder="Search Roll # (e.g. 162), Topic, or Doctor...">
@@ -156,8 +182,13 @@ let html='';
     const row=ROSTER[key];
     const top=row?row.topic:'';
     const tu=top.toUpperCase();
+    
+    // Check if it's today
+    const todayKey = dk(new Date());
     let cls='dc';
+    if(key === todayKey) cls += ' today-highlight';
     if(tu==='HOLIDAY') cls+=' hol'; else if(tu==='CPC') cls+=' cpc'; else if(tu==='WARD TEST') cls+=' wrd';
+    
     let pills='';
     if(tu==='HOLIDAY') pills+=`<span class="pl p-hol">Holiday</span>`;
     else if(tu==='CPC') pills+=`<span class="pl p-cpc">CPC</span>`;
@@ -178,6 +209,7 @@ let html='';
 });
 document.getElementById('calWrap').innerHTML=html;
 
+// SEARCH LOGIC
 document.getElementById('searchInput').addEventListener('input', e=>{
   const t=e.target.value.toLowerCase().trim();
   document.querySelectorAll('.dc:not(.empty)').forEach(c=>{
@@ -185,36 +217,4 @@ document.getElementById('searchInput').addEventListener('input', e=>{
     const r=ROSTER[k];
     const match = !t || r?.topic?.toLowerCase().includes(t) || r?.mc?.toLowerCase().includes(t) || r?.sr?.toLowerCase().includes(t) || CP[k]?.some(n=>n.toString().includes(t)) || INCHARGE[new Date(k).getDay()]?.some(n=>n.toString().includes(t));
     c.style.opacity = match ? "1" : "0.15";
-    c.classList.toggle('search-match', !!t && match);
-  });
-});
-
-function gr(n){return (GROUPS[n]||[]).join(', ');}
-function showM(key){
-  const r=ROSTER[key]; if(!r) return;
-  const d=r.date, tu=r.topic.toUpperCase(), cp=CP[key], oe=OPD_ER[key], ic=INCHARGE[d.getDay()]||[];
-  document.getElementById('mWd').textContent=r.day;
-  document.getElementById('mDt').textContent=d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
-  let b='';
-  if(tu==='HOLIDAY') b=`<p style="color:var(--muted)">No scheduled activities.</p>`;
-  else if(tu==='CPC') b=`<p>CPC - All students attend.</p>`;
-  else if(tu==='WARD TEST') b=`<p>Ward Test - All students attend.</p>`;
-  else {
-    b+=`<div class="st">☀️ Morning</div>`;
-    if(tu.includes('OPD') && oe) b+=`<div class="apanel"><div class="ap-hdr ap-opd">OPD</div><div class="ap-row"><div class="ap-loc">Rm 34</div><div class="ap-val">G${oe.r34}: ${gr(oe.r34)}</div></div><div class="ap-row"><div class="ap-loc">Rm 42</div><div class="ap-val">G${oe.r42}: ${gr(oe.r42)}</div></div><div class="ap-row"><div class="ap-loc">Rm 17</div><div class="ap-val">G${oe.r17}: ${gr(oe.r17)}</div></div><div class="ap-row"><div class="ap-loc">Liver</div><div class="ap-val">G${oe.lv}: ${gr(oe.lv)}</div></div></div>`;
-    else { b+=`<div class="ir"><div class="il">Topic</div><div class="iv"><strong>${r.topic}</strong></div></div>`; if(r.mc) b+=`<div class="ir"><div class="il">Speaker</div><div class="iv">${r.mc}</div></div>`; }
-    if(cp) b+=`<div class="st">📋 Case Presentation</div><div class="roll-chips">${cp.map(n=>`<span class="rc">${n}</span>`).join('')}</div>`;
-    b+=`<div class="st">🌙 Evening</div>`;
-    if(tu.includes('ER') && oe) b+=`<div class="apanel"><div class="ap-hdr ap-er">ER</div><div class="ap-row"><div class="ap-loc">Bay 3</div><div class="ap-val">G${oe.b3}: ${gr(oe.b3)}</div></div><div class="ap-row"><div class="ap-loc">Bay 4</div><div class="ap-val">G${oe.b4}: ${gr(oe.b4)}</div></div><div class="ap-row"><div class="ap-loc">ICU</div><div class="ap-val">G${oe.icu}</div></div></div>`;
-    else if(r.ec && r.ec!=='ER') b+=`<div class="ir"><div class="il">Evening</div><div class="iv">${r.ec}</div></div>`;
-    if(r.sr) b+=`<div class="ir"><div class="il">Teacher</div><div class="iv">${r.sr}</div></div>`;
-    if(ic.length) b+=`<div class="st">🎓 Incharge</div><div class="roll-chips">${ic.map(n=>`<span class="rc" style="border-color:var(--accent2); color:var(--accent2)">${n}</span>`).join('')}</div>`;
-  }
-  document.getElementById('mB').innerHTML=b;
-  document.getElementById('ov').classList.add('on');
-}
-function closeM(){document.getElementById('ov').classList.remove('on');}
-function ovClick(e){if(e.target===document.getElementById('ov'))closeM();}
-</script>
-</body>
-</html>
+    c.classList.toggle('search-ma
